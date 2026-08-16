@@ -1,0 +1,5 @@
+{
+  "best_val_macro_f1": 0.9882285310895336,
+  "best_epoch": 7,
+  "params_trainable": 11196006
+}

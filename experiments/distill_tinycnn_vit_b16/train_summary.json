@@ -1,0 +1,7 @@
+{
+  "teacher": "vit_b16",
+  "best_val_macro_f1": 0.8927916523322396,
+  "best_epoch": 11,
+  "student_params": 27294,
+  "feature_loss": true
+}

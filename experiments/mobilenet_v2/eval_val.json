@@ -1,0 +1,21 @@
+{
+  "model": "mobilenet_v2",
+  "weights": "experiments/mobilenet_v2/best.pth",
+  "split": "val",
+  "n": 5430,
+  "loss": 0.0234397668533823,
+  "accuracy": 0.9917127071823204,
+  "macro_f1": 0.9870685052635142,
+  "weighted_f1": 0.99162926696258,
+  "top3": 1.0,
+  "params": 2272550,
+  "gmacs": 0.32625536,
+  "gflops": 0.65251072,
+  "latency": {
+    "gpu_ms_median": 5.094759000712656,
+    "gpu_ms_p90": 6.366321900350158,
+    "cpu_ms_median": 13.400501000432996,
+    "cpu_ms_p90": 15.35497129916621
+  },
+  "size_mb": 9.304459
+}

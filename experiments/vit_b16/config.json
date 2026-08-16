@@ -1,0 +1,21 @@
+{
+  "model": "vit_b16",
+  "num_classes": 38,
+  "pretrained": true,
+  "epochs": 5,
+  "freeze_epochs": 0,
+  "batch_size": 16,
+  "grad_accum": 2,
+  "lr": 0.0003,
+  "head_lr": 0.001,
+  "weight_decay": 0.0001,
+  "seed": 42,
+  "amp": true,
+  "device": "cuda",
+  "smoke": false,
+  "manifest": "/mnt/d/Projects/plant-disease/data/split_manifest.json",
+  "init_from": "experiments/vit_b16/best.pth",
+  "train_n": 43444,
+  "val_n": 5430,
+  "params_trainable": 85827878
+}

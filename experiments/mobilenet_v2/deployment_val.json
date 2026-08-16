@@ -1,0 +1,36 @@
+{
+  "model": "mobilenet_v2",
+  "split": "val",
+  "max_logits_diff": 4.157423973083496e-06,
+  "variants": {
+    "fp32": {
+      "file": "experiments/mobilenet_v2/mobilenet_v2_fp32.onnx",
+      "size_mb": 9.06298,
+      "acc": 0.994140625,
+      "macro_f1": 0.9948640999365637,
+      "n": 512,
+      "cpu_ms_median_t1": 3.367161499966187,
+      "cpu_ms_p90_t1": 3.786591799917005
+    },
+    "int8_dynamic": {
+      "file": "experiments/mobilenet_v2/mobilenet_v2_int8_dynamic.onnx",
+      "size_mb": 2.45707,
+      "acc": 0.962890625,
+      "macro_f1": 0.9625222098403009,
+      "n": 512,
+      "cpu_ms_median_t1": 46.788216999971155,
+      "cpu_ms_p90_t1": 52.450280099924385
+    },
+    "int8_static": {
+      "file": "experiments/mobilenet_v2/mobilenet_v2_int8_static.onnx",
+      "size_mb": 2.657845,
+      "acc": 0.994140625,
+      "macro_f1": 0.9948640999365637,
+      "n": 512,
+      "cpu_ms_median_t1": 4.307133999986945,
+      "cpu_ms_p90_t1": 4.864791400029844,
+      "note": "per_channel=True QDQ, 1024 calib / 512 eval (retuned)"
+    }
+  },
+  "note": "all variants evaluated on identical 512-image val subset"
+}

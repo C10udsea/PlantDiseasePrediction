@@ -1,0 +1,18 @@
+# 数据与模型(大文件,不公开再分发)
+data
+*.pth
+*.onnx
+*.h5
+*.keras
+review/
+.venv/
+venv/
+__pycache__/
+*.pyc
+kaggle.json
+.kaggle/
+nohup.out
+*.log
+# experiments:保留可复现证据 JSON/CSV/PNG;权重/日志由上方全局规则忽略
+experiments/distill_smoke/
+experiments/smoke_test/

@@ -1,0 +1,21 @@
+{
+  "model": "tinycnn",
+  "weights": "experiments/distill_tinycnn_mobilenet_v2/best.pth",
+  "split": "val",
+  "n": 5430,
+  "loss": 0.29786281298098205,
+  "accuracy": 0.9125230202578268,
+  "macro_f1": 0.8646678736225903,
+  "weighted_f1": 0.9104067117894697,
+  "top3": 0.9900552486187846,
+  "params": 27294,
+  "gmacs": 0.052230288,
+  "gflops": 0.104460576,
+  "latency": {
+    "gpu_ms_median": 0.7343360011873301,
+    "gpu_ms_p90": 0.9663589007686826,
+    "cpu_ms_median": 1.579068000864936,
+    "cpu_ms_p90": 2.3368345995550044
+  },
+  "size_mb": 0.127873
+}

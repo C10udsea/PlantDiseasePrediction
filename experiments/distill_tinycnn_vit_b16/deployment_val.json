@@ -1,0 +1,34 @@
+{
+  "model": "tinycnn",
+  "split": "val",
+  "max_logits_diff": 1.9073486328125e-05,
+  "variants": {
+    "fp32": {
+      "file": "experiments/distill_tinycnn_vit_b16/tinycnn_fp32.onnx",
+      "size_mb": 0.110279,
+      "acc": 0.93603515625,
+      "macro_f1": 0.9013081195400382,
+      "n": 2048,
+      "cpu_ms_median_t1": 0.5163320001884131,
+      "cpu_ms_p90_t1": 0.6305345970758937
+    },
+    "int8_dynamic": {
+      "file": "experiments/distill_tinycnn_vit_b16/tinycnn_int8_dynamic.onnx",
+      "size_mb": 0.044145,
+      "acc": 0.927734375,
+      "macro_f1": 0.891597527002565,
+      "n": 2048,
+      "cpu_ms_median_t1": 10.130103000847157,
+      "cpu_ms_p90_t1": 11.330992799412344
+    },
+    "int8_static": {
+      "file": "experiments/distill_tinycnn_vit_b16/tinycnn_int8_static.onnx",
+      "size_mb": 0.044053,
+      "acc": 0.92822265625,
+      "macro_f1": 0.8914104502629815,
+      "n": 2048,
+      "cpu_ms_median_t1": 0.5483864988491405,
+      "cpu_ms_p90_t1": 0.7205988993518986
+    }
+  }
+}

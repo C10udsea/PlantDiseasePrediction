@@ -1,0 +1,21 @@
+{
+  "model": "resnet18",
+  "weights": "experiments/resnet18/best.pth",
+  "split": "val",
+  "n": 5430,
+  "loss": 0.02133112022049492,
+  "accuracy": 0.992633517495396,
+  "macro_f1": 0.9882285310895336,
+  "weighted_f1": 0.9926005781750024,
+  "top3": 1.0,
+  "params": 11196006,
+  "gmacs": 1.823541248,
+  "gflops": 3.647082496,
+  "latency": {
+    "gpu_ms_median": 2.246955998998601,
+    "gpu_ms_p90": 3.0752110000321413,
+    "cpu_ms_median": 22.282623498540488,
+    "cpu_ms_p90": 25.451547899501747
+  },
+  "size_mb": 44.852171
+}

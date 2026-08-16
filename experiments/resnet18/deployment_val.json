@@ -1,0 +1,34 @@
+{
+  "model": "resnet18",
+  "split": "val",
+  "max_logits_diff": 1.9073486328125e-06,
+  "variants": {
+    "fp32": {
+      "file": "experiments/resnet18/resnet18_fp32.onnx",
+      "size_mb": 44.774534,
+      "acc": 0.99365234375,
+      "macro_f1": 0.9854463412288065,
+      "n": 2048,
+      "cpu_ms_median_t1": 11.45489950067713,
+      "cpu_ms_p90_t1": 12.958418301059284
+    },
+    "int8_dynamic": {
+      "file": "experiments/resnet18/resnet18_int8_dynamic.onnx",
+      "size_mb": 11.248562,
+      "acc": 0.99267578125,
+      "macro_f1": 0.9843870063249249,
+      "n": 2048,
+      "cpu_ms_median_t1": 41.661537001346005,
+      "cpu_ms_p90_t1": 44.46469550020993
+    },
+    "int8_static": {
+      "file": "experiments/resnet18/resnet18_int8_static.onnx",
+      "size_mb": 11.250382,
+      "acc": 0.99365234375,
+      "macro_f1": 0.9855760012751599,
+      "n": 2048,
+      "cpu_ms_median_t1": 12.032407501465059,
+      "cpu_ms_p90_t1": 13.507311902139918
+    }
+  }
+}

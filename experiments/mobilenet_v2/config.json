@@ -1,0 +1,20 @@
+{
+  "model": "mobilenet_v2",
+  "num_classes": 38,
+  "pretrained": true,
+  "epochs": 7,
+  "freeze_epochs": 1,
+  "batch_size": 64,
+  "grad_accum": 1,
+  "lr": 0.0003,
+  "head_lr": 0.001,
+  "weight_decay": 0.0001,
+  "seed": 42,
+  "amp": true,
+  "device": "cuda",
+  "smoke": false,
+  "manifest": "/mnt/d/Projects/plant-disease/data/split_manifest.json",
+  "train_n": 43444,
+  "val_n": 5430,
+  "params_trainable": 2272550
+}

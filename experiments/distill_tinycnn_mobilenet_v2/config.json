@@ -1,0 +1,21 @@
+{
+  "teacher": "mobilenet_v2",
+  "teacher_weights": "experiments/mobilenet_v2/best.pth",
+  "epochs": 12,
+  "batch_size": 64,
+  "grad_accum": 1,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "T": 4.0,
+  "alpha": 0.5,
+  "beta": 0.05,
+  "no_feature": false,
+  "num_workers": 8,
+  "seed": 42,
+  "output": null,
+  "no_amp": false,
+  "smoke": false,
+  "device": "cuda",
+  "student_params": 27294,
+  "teacher_params": 2272550
+}

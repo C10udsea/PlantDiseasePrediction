@@ -1,0 +1,7 @@
+{
+  "teacher": "mobilenet_v2",
+  "best_val_macro_f1": 0.8646678736225903,
+  "best_epoch": 12,
+  "student_params": 27294,
+  "feature_loss": true
+}
