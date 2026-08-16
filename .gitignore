@@ -16,3 +16,6 @@ nohup.out
 # experiments:保留可复现证据 JSON/CSV/PNG;权重/日志由上方全局规则忽略
 experiments/distill_smoke/
 experiments/smoke_test/
+
+# 量化校准缓存(大文件,不入库)
+*.npy

@@ -7,7 +7,7 @@ from onnxruntime.quantization import QuantFormat, QuantType, quantize_static
 from sklearn.metrics import f1_score
 
 REPO = Path(__file__).resolve().parents[1]
-DATA = Path.home() / "plantvillage-data" / "quant_mv2"
+DATA = Path(__file__).resolve().parents[1] / "experiments" / "quant_cache" / "quant_mv2"
 FP32 = REPO / "experiments/mobilenet_v2/mobilenet_v2_fp32.onnx"
 OUT = REPO / "experiments/mobilenet_v2/mobilenet_v2_int8_static.onnx"
 DEP = REPO / "experiments/mobilenet_v2/deployment_val.json"

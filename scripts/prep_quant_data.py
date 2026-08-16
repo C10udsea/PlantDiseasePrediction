@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import numpy as np
 from data import build_loaders, get_manifest, DEFAULT_DATA_DIR as DATA_DIR
 
-OUT = Path.home() / "plantvillage-data" / "quant_mv2"
+OUT = Path(__file__).resolve().parents[1] / "experiments" / "quant_cache" / "quant_mv2"
 
 def main():
     get_manifest(DATA_DIR)

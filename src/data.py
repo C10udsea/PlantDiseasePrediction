@@ -111,6 +111,17 @@ def load_manifest(manifest_path: Path | str = DEFAULT_MANIFEST) -> dict:
     return json.loads(Path(manifest_path).read_text(encoding="utf-8"))
 
 
+def resolve_color_dir(manifest: dict, manifest_path: Path | str = DEFAULT_MANIFEST) -> Path:
+    """优先使用 manifest 记录路径;若不可用,回退到 manifest 同级的 color/ 目录。"""
+    recorded = Path(manifest.get("color_dir", ""))
+    if recorded.exists():
+        return recorded
+    fallback = Path(manifest_path).parent / "color"
+    if fallback.exists():
+        return fallback
+    return recorded
+
+
 def get_manifest(color_dir: Path | str = DEFAULT_DATA_DIR,
                  manifest_path: Path | str = DEFAULT_MANIFEST,
                  seed: int = 42) -> dict:
@@ -162,7 +173,7 @@ def build_loaders(batch_size: int = 64, num_workers: int = 8, seed: int = 42,
                   color_dir: Path | str | None = None):
     manifest = load_manifest(manifest_path)
     if color_dir is None:
-        color_dir = Path(manifest["color_dir"])
+        color_dir = resolve_color_dir(manifest, manifest_path)
     else:
         color_dir = Path(color_dir)
     split = manifest["split"]
