@@ -1,5 +1,5 @@
 #!/bin/bash
-# 在 WSL/Linux 下重建训练环境(Windows 请改用原生 Python venv + requirements.txt)
+# Recreate the training environment in WSL/Linux.
 set -e
 cd "$(dirname "$0")/.."
 python3 -m virtualenv ~/pd-venv

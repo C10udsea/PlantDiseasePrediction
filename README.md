@@ -54,13 +54,13 @@
 | 38 类农作物叶片健康状态检测 | PlantVillage color 版,38 类 / 54,305 张;`data/split_manifest.json` |
 | 对比 ResNet-18 / ViT / MobileNetV2,选 MobileNetV2 | `experiments/*/eval_test.json`;结论如上 |
 | ViT 教师蒸馏 TinyCNN,软标签 + 特征损失,26.3K | `src/distill.py`;TinyCNN 27,294 参数;F1 0.778→0.892 |
-| Python GUI 上传→实时预测 | `gui/app.py`(Tkinter,top-3 + 中文标签,模型切换) |
+| Python GUI 上传→实时预测 | `gui/app.py`(Tkinter,top-3 + 英文标签,模型切换) |
 
 ---
 
 ## 二·补充:Windows 一键启动 GUI
 
-在 `D:\Projects\plant-disease` 下双击 **`启动GUI.bat`**:
+在 `D:\Projects\plant-disease` 下双击 **`start_gui.bat`**:
 1. 首次运行会自动检测 Python/torch/tkinter,若缺失会自动创建 `.venv` 并安装依赖;
 2. 后续双击会直接启动 Tkinter 窗口;
 3. 如果系统 Python 已装好 torch/tkinter,也会直接使用,不重复安装。
@@ -103,7 +103,7 @@ src/train.py          两阶段迁移训练 + AMP + CSV/checkpoint(通用)
 src/distill.py        Hinton KD(batchmean) + 特征蒸馏;教师冻结断言
 src/evaluate.py       Acc / Macro-F1 / Top-3 / 参数量 / GFLOPs / 延迟 / 体积
 src/export_onnx.py    ONNX 导出 + 静态/动态 INT8 + 数值校验(<1e-3)
-gui/app.py            Tkinter GUI(top-3 + 中文映射 + 模型切换)
+gui/app.py            Tkinter GUI(top-3 + 英文标签 + 模型切换)
 scripts/              download_data / eda / plot_history / check_results
 tests/                8 个自动化测试
 ```

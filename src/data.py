@@ -1,10 +1,4 @@
-"""PlantVillage 数据管线:扫描、分层划分(持久化 manifest)、增强、DataLoader。
-
-设计要点(多 agent 审查后修订):
-- 文件路径 sorted,保证划分可复现;划分结果写入 data/split_manifest.json。
-- 所有训练/评估只从 manifest 加载,绝不重新 scan+split。
-- test 集只在项目收尾使用;中间选择只看 val。
-"""
+"""PlantVillage data pipeline: scan, stratified split, manifest, augment, loaders."""
 from __future__ import annotations
 
 import json
@@ -15,7 +9,7 @@ import numpy as np
 import torch
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, Dataset, Subset
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -23,7 +17,6 @@ DEFAULT_DATA_DIR = REPO_ROOT / "data" / "color"
 DEFAULT_MANIFEST = REPO_ROOT / "data" / "split_manifest.json"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}
 
-# PlantVillage color 版 38 类的完整集合(用于下载校验)
 EXPECTED_CLASSES = sorted([
     "Apple___Apple_scab", "Apple___Black_rot", "Apple___Cedar_apple_rust", "Apple___healthy",
     "Blueberry___healthy", "Cherry_(including_sour)___Powdery_mildew", "Cherry_(including_sour)___healthy",
@@ -53,7 +46,6 @@ def seed_everything(seed: int = 42) -> None:
 
 
 def scan_samples(color_dir: Path | str) -> list[tuple[Path, str]]:
-    """扫描 color 目录,返回 (绝对路径, 类名),顺序确定。"""
     color_dir = Path(color_dir).resolve()
     class_names = sorted(p.name for p in color_dir.iterdir() if p.is_dir())
     missing = set(EXPECTED_CLASSES) - set(class_names)
@@ -75,7 +67,7 @@ def create_split_manifest(color_dir: Path | str = DEFAULT_DATA_DIR,
     samples = scan_samples(color_dir)
     paths = [str(p.relative_to(color_dir)) for p, _ in samples]
     labels = [label for _, label in samples]
-    # 80/10/10 分层
+
     tr_idx, rest_idx = train_test_split(
         np.arange(len(paths)), train_size=0.8, shuffle=True,
         random_state=seed, stratify=labels)
@@ -87,20 +79,16 @@ def create_split_manifest(color_dir: Path | str = DEFAULT_DATA_DIR,
     val_paths = [paths[rest_idx[i]] for i in val_idx]
     test_paths = [paths[rest_idx[i]] for i in test_idx]
 
-    assert len(set(tr_paths) & set(val_paths)) == 0
-    assert len(set(tr_paths) & set(test_paths)) == 0
-    assert len(set(val_paths) & set(test_paths)) == 0
+    assert not (set(tr_paths) & set(val_paths))
+    assert not (set(tr_paths) & set(test_paths))
+    assert not (set(val_paths) & set(test_paths))
 
     manifest = {
         "color_dir": str(color_dir),
         "seed": seed,
         "num_images": len(paths),
         "classes": sorted(set(labels)),
-        "split": {
-            "train": tr_paths,
-            "val": val_paths,
-            "test": test_paths,
-        },
+        "split": {"train": tr_paths, "val": val_paths, "test": test_paths},
         "per_class": {c: labels.count(c) for c in sorted(set(labels))},
     }
     Path(manifest_path).write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -112,14 +100,10 @@ def load_manifest(manifest_path: Path | str = DEFAULT_MANIFEST) -> dict:
 
 
 def resolve_color_dir(manifest: dict, manifest_path: Path | str = DEFAULT_MANIFEST) -> Path:
-    """优先使用 manifest 记录路径;若不可用,回退到 manifest 同级的 color/ 目录。"""
     recorded = Path(manifest.get("color_dir", ""))
     if recorded.exists():
         return recorded
-    fallback = Path(manifest_path).parent / "color"
-    if fallback.exists():
-        return fallback
-    return recorded
+    return Path(manifest_path).parent / "color"
 
 
 def get_manifest(color_dir: Path | str = DEFAULT_DATA_DIR,
@@ -189,12 +173,3 @@ def build_loaders(batch_size: int = 64, num_workers: int = 8, seed: int = 42,
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False,
                              num_workers=num_workers, pin_memory=True)
     return train_loader, val_loader, test_loader, manifest
-
-
-def smoke_loaders(n: int = 128, batch_size: int = 32, num_workers: int = 2):
-    train_loader, val_loader, test_loader, manifest = build_loaders(batch_size, num_workers)
-    train_ds = train_loader.dataset
-    indices = list(range(min(n, len(train_ds))))
-    small_ds = Subset(train_ds, indices)
-    small_loader = DataLoader(small_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    return small_loader, val_loader, test_loader, manifest

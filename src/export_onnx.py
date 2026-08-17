@@ -1,7 +1,4 @@
-"""ONNX 导出 + FP32/动态INT8/静态INT8 对比 + 数值校验(审查修订版)。
-
-静态量化(QDQ + 校准集)才对 Conv 网络有体积/延迟收益;动态量化仅作附加列。
-"""
+"""Export ONNX models and compare FP32 / dynamic INT8 / static INT8."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +11,7 @@ import onnxruntime as ort
 import torch
 from sklearn.metrics import f1_score
 
-from data import build_loaders, build_transforms, get_manifest, seed_everything
+from data import build_loaders, get_manifest, seed_everything
 from models import build_model
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -96,8 +93,7 @@ def main():
 
     model = build_model(args.model, num_classes=38, pretrained=False)
     model.load_state_dict(torch.load(args.weights, map_location="cpu"))
-    # ONNX 一致性校验统一在 CPU 进行:GPU 上的 TF32 conv 与 CPU/ORT 有 ~1e-2 级差,
-    # CPU vs ORT 则为 1e-5 级,可满足 <1e-3 的数值契约。
+    # CPU is used for ONNX consistency because GPU TF32 differs from CPU/ORT by ~1e-2.
     model.eval()
     device = torch.device("cpu")
 
@@ -105,7 +101,6 @@ def main():
     dummy = export_fp32(model, fp32_path, device)
     dummy_np = dummy.cpu().numpy()
 
-    # 1) PyTorch vs ORT FP32 数值校验(均在 CPU)
     with torch.no_grad():
         torch_logits = model(dummy).numpy()
     sess_fp32 = ort.InferenceSession(str(fp32_path), providers=["CPUExecutionProvider"])
@@ -114,7 +109,6 @@ def main():
     print(f"FP32 torch-vs-ort max|dlogits| = {max_diff:.6f}")
     assert max_diff < 1e-3, "ONNX numerical check failed"
 
-    # 2) 量化
     from onnxruntime.quantization import QuantFormat, QuantType, quantize_dynamic, quantize_static
     dyn_path = out_dir / f"{args.model}_int8_dynamic.onnx"
     quantize_dynamic(str(fp32_path), str(dyn_path), weight_type=QuantType.QInt8)
@@ -122,7 +116,6 @@ def main():
     static_path = out_dir / f"{args.model}_int8_static.onnx"
     static_ok = False
     if not args.skip_static:
-        # 校准集:val 前 N 张(无 shuffle,顺序固定)
         get_manifest(DATA_DIR)
         _, val_loader, test_loader, _ = build_loaders(64, num_workers=0)
         loader = val_loader if args.split == "val" else test_loader
@@ -135,13 +128,12 @@ def main():
         try:
             quantize_static(
                 str(fp32_path), str(static_path), make_calibration_reader(calib),
-                weight_type=QuantType.QInt8, quant_format=QuantFormat.QDQ)
+                weight_type=QuantType.QInt8, quant_format=QuantFormat.QDQ, per_channel=True)
             static_ok = static_path.exists()
         except Exception as e:
             print(f"static quantization failed (continuing): {e}")
             static_ok = False
 
-    # 3) 精度/延迟/体积
     results = {"model": args.model, "split": args.split, "max_logits_diff": max_diff, "variants": {}}
     results["variants"]["fp32"] = {"file": str(fp32_path), "size_mb": fp32_path.stat().st_size / 1e6}
     results["variants"]["int8_dynamic"] = {"file": str(dyn_path), "size_mb": dyn_path.stat().st_size / 1e6}

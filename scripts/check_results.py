@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""项目级自动化验收断言:数据/模型/蒸馏/部署结果与阈值核对。
-
-用法: python scripts/check_results.py [--strict]
-所有阈值在 README 中同步说明;数字以 experiments/*/eval_*.json 实测为准。
-"""
+"""Run project-level acceptance checks."""
 from __future__ import annotations
 
 import argparse
@@ -35,7 +31,6 @@ def main():
     ap.add_argument("--strict", action="store_true")
     args = ap.parse_args()
 
-    # 阶段 0:数据
     m = load_manifest()
     check("38 classes", m["num_images"] == 54305 and len(m["classes"]) == 38)
     check("class set exact", m["classes"] == EXPECTED_CLASSES)
@@ -44,7 +39,6 @@ def main():
     check("no split overlap", len(set(tr) & set(va)) == 0 and len(set(tr) & set(te)) == 0 and len(set(va) & set(te)) == 0)
     check("min class >= 150", min(m["per_class"].values()) >= 150)
 
-    # 阶段 1/2:三模型 val 精度(随机划分口径;test 只在收尾用)
     for model, min_acc, min_f1 in [("resnet18", 0.97, 0.97), ("mobilenet_v2", 0.97, 0.97),
                                    ("vit_b16", 0.96, 0.95)]:
         ev = load_json(REPO / "experiments" / model / "eval_val.json")
@@ -54,11 +48,10 @@ def main():
             check(f"{model} val_acc >= {min_acc}", ev["accuracy"] >= min_acc, f"acc={ev['accuracy']:.4f}")
             check(f"{model} val_macro_f1 >= {min_f1}", ev["macro_f1"] >= min_f1, f"f1={ev['macro_f1']:.4f}")
 
-    # 阶段 3:学生参数预算与蒸馏收益
     direct = load_json(REPO / "experiments" / "tinycnn" / "train_summary.json")
     if direct:
         check("TinyCNN params <= 30K", direct["params_trainable"] <= 30_000,
-              f"params={direct['params_trainable']} (resume 26.3K)")
+              f"params={direct['params_trainable']}")
     kd = load_json(REPO / "experiments" / "distill_tinycnn_vit_b16" / "train_summary.json")
     if direct and kd:
         gain = kd["best_val_macro_f1"] - direct["best_val_macro_f1"]
@@ -67,7 +60,6 @@ def main():
         check("KD student params <= 30K", kd["student_params"] <= 30_000, f"params={kd['student_params']}")
         check("KD feature loss enabled", kd["feature_loss"] is True)
 
-    # 阶段 4:部署(若已生成)
     dep = load_json(REPO / "experiments" / "distill_tinycnn_vit_b16" / "deployment_val.json")
     if dep:
         v = dep["variants"]

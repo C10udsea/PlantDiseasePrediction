@@ -1,7 +1,4 @@
-"""统一评估:Acc / Macro-F1(主) / Top-3 / 参数量 / GFLOPs / 延迟 / 体积 -> eval.json。
-
-test 集只在整个项目收尾时使用(--split test);日常用 val。
-"""
+"""Evaluate models: accuracy, macro-F1, top-3, params, FLOPs, latency, size."""
 from __future__ import annotations
 
 import argparse
@@ -12,7 +9,6 @@ from pathlib import Path
 import numpy as np
 import torch
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
-from torch.utils.data import DataLoader
 
 from data import build_loaders, get_manifest, seed_everything
 from models import build_model, count_parameters
@@ -68,14 +64,12 @@ def main():
     _, val_loader, test_loader, manifest = build_loaders(args.batch_size, args.num_workers)
     loader = val_loader if args.split == "val" else test_loader
     classes = manifest["classes"]
-    class_to_idx = {c: i for i, c in enumerate(classes)}
 
     model = build_model(args.model, num_classes=38, pretrained=False)
     ckpt = torch.load(args.weights, map_location="cpu")
     model.load_state_dict(ckpt)
     model.to(device).eval()
 
-    # 分类指标
     preds, labels, total_loss = [], [], 0.0
     with torch.no_grad():
         for x, y in loader:
@@ -91,7 +85,6 @@ def main():
     weighted_f1 = float(f1_score(labels, preds, average="weighted", zero_division=0))
     cm = confusion_matrix(labels, preds, labels=list(range(len(classes))))
 
-    # top3 重新用模型计算(严格)
     top3_hits, total = 0, 0
     with torch.no_grad():
         for x, y in loader:
@@ -101,14 +94,13 @@ def main():
             total += x.size(0)
     top3 = top3_hits / total
 
-    # 效率指标
     params = count_parameters(model)
     dummy = torch.randn(1, 3, 224, 224).to(device)
     try:
         from thop import profile
         macs, _ = profile(model, inputs=(dummy,), verbose=False)
         gmacs = float(macs) / 1e9
-        gflops = gmacs * 2  # thop 输出 MACs,1 MAC = 2 FLOPs
+        gflops = gmacs * 2
     except Exception as e:
         print("thop failed:", e)
         gmacs = gflops = None

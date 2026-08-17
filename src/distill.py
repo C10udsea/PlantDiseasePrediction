@@ -1,9 +1,4 @@
-"""知识蒸馏:教师(ViT-B/16 或 MobileNetV2) -> 学生 TinyCNN(<=30K)。
-
-损失: L = alpha*CE(y,s) + (1-alpha)*T^2*KLDiv(log_softmax(s/T), softmax(t/T), batchmean)
-            + beta*MSE(proj(student_GAP_feat), teacher_feat)
-对齐简历:教师默认 ViT-B/16;软标签 + 特征损失。
-"""
+"""Knowledge distillation: teacher (ViT-B/16 or MobileNetV2) -> TinyCNN."""
 from __future__ import annotations
 
 import argparse
@@ -37,14 +32,13 @@ def kd_loss(student_logits, teacher_logits, labels, T=4.0, alpha=0.5):
 
 
 def make_teacher_feature_hook(teacher, teacher_name):
-    """返回每次前向更新的特征张量容器。"""
     holder = {"feat": None}
 
     def vit_hook(module, inp, out):
-        holder["feat"] = out[:, 0].detach()  # CLS token
+        holder["feat"] = out[:, 0].detach()
 
     def cnn_hook(module, inp, out):
-        holder["feat"] = out.mean(dim=[2, 3]).detach()  # GAP 特征
+        holder["feat"] = out.mean(dim=[2, 3]).detach()
 
     if teacher_name in ("vit_b16", "vit"):
         handle = teacher.encoder.ln.register_forward_hook(vit_hook)
@@ -118,17 +112,14 @@ def main():
         subset = Subset(train_loader.dataset, list(range(n)))
         train_loader = DataLoader(subset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
-    # 教师
     teacher = build_model(args.teacher, num_classes=38, pretrained=(args.teacher_weights is None and not args.smoke))
     if args.teacher_weights:
-        ckpt = torch.load(args.teacher_weights, map_location="cpu")
-        teacher.load_state_dict(ckpt)
+        teacher.load_state_dict(torch.load(args.teacher_weights, map_location="cpu"))
     teacher.to(device).eval()
     for p in teacher.parameters():
         p.requires_grad_(False)
     holder, hook = make_teacher_feature_hook(teacher, args.teacher)
 
-    # 学生
     student = TinyCNN(num_classes=38).to(device)
     proj = nn.Linear(88, holder_feat_dim(teacher, args.teacher)).to(device)
 
@@ -139,7 +130,6 @@ def main():
                    "teacher_params": count_parameters(teacher, trainable_only=False)})
     (out_dir / "config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # 断言教师冻结
     assert teacher.training is False
     assert all(not p.requires_grad for p in teacher.parameters())
 
@@ -150,9 +140,8 @@ def main():
 
     hist_path = out_dir / "history.csv"
     with hist_path.open("w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["epoch", "loss_total", "loss_ce", "loss_kd", "loss_feat",
-                    "train_acc", "val_loss", "val_acc", "val_f1", "lr", "seconds"])
+        csv.writer(f).writerow(["epoch", "loss_total", "loss_ce", "loss_kd", "loss_feat",
+                                "train_acc", "val_loss", "val_acc", "val_f1", "lr", "seconds"])
 
     best_f1, best_epoch, best_state = -1.0, 0, None
 

@@ -1,4 +1,4 @@
-# 主要依赖(完整锁定见 requirements.lock)
+# Core dependencies (full lock in requirements.lock)
 torch>=2.13.0
 torchvision>=0.28.0
 onnxruntime>=1.28.0

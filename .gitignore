@@ -1,4 +1,4 @@
-# 数据与模型(大文件,不公开再分发)
+# Data and large models (not redistributed)
 data
 *.pth
 *.onnx
@@ -13,9 +13,8 @@ kaggle.json
 .kaggle/
 nohup.out
 *.log
-# experiments:保留可复现证据 JSON/CSV/PNG;权重/日志由上方全局规则忽略
+# Keep evidence JSON/CSV/PNG under experiments
 experiments/distill_smoke/
 experiments/smoke_test/
-
-# 量化校准缓存(大文件,不入库)
+# Large quantization cache
 *.npy

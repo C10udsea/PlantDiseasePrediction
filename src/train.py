@@ -1,16 +1,9 @@
-"""通用训练脚本:迁移学习两阶段(冻结训头 -> 解冻微调),支持 ResNet-18/MobileNetV2/ViT-B/16/TinyCNN。
-
-用法:
-  python src/train.py --model resnet18 --smoke          # 冒烟
-  python src/train.py --model resnet18                  # 正式训练
-  python src/train.py --model tinycnn --epochs 20       # 学生直接训练对照组
-"""
+"""Train a model with optional freeze-then-finetune and AMP."""
 from __future__ import annotations
 
 import argparse
 import csv
 import json
-import math
 import time
 from pathlib import Path
 
@@ -127,7 +120,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device={device} cuda={torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu'}")
 
-    manifest = get_manifest(DATA_DIR)
+    get_manifest(DATA_DIR)
     train_loader, val_loader, _, _ = build_loaders(
         batch_size=args.batch_size, num_workers=args.num_workers, seed=args.seed)
 
@@ -139,8 +132,7 @@ def main():
 
     model = build_model(args.model, num_classes=38, pretrained=not args.no_pretrained)
     if args.init_from:
-        state = torch.load(args.init_from, map_location="cpu")
-        model.load_state_dict(state)
+        model.load_state_dict(torch.load(args.init_from, map_location="cpu"))
         print(f"initialized from {args.init_from}")
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()
@@ -169,7 +161,7 @@ def main():
         "device": str(device),
         "smoke": args.smoke,
         "manifest": str(REPO_ROOT / "data" / "split_manifest.json"),
-    "init_from": args.init_from,
+        "init_from": args.init_from,
         "train_n": len(train_loader.dataset),
         "val_n": len(val_loader.dataset),
         "params_trainable": count_parameters(model),
@@ -197,14 +189,12 @@ def main():
             dt = time.time() - t0
             lr = optimizer.param_groups[0]["lr"]
             with history_path.open("a", newline="") as f:
-                w = csv.writer(f)
-                w.writerow([epoch_num, phase, tr["loss"], tr["acc"], tr["macro_f1"],
-                            va["loss"], va["acc"], va["macro_f1"], va["top3"], lr, round(dt, 1)])
+                csv.writer(f).writerow([epoch_num, phase, tr["loss"], tr["acc"], tr["macro_f1"],
+                                        va["loss"], va["acc"], va["macro_f1"], va["top3"], lr, round(dt, 1)])
             print(f"[{phase}] epoch {epoch_num}/{args.epochs} "
                   f"train_loss={tr['loss']:.4f} train_acc={tr['acc']:.4f} train_f1={tr['macro_f1']:.4f} | "
                   f"val_loss={va['loss']:.4f} val_acc={va['acc']:.4f} val_f1={va['macro_f1']:.4f} "
                   f"val_top3={va['top3']:.4f} lr={lr:.2e} {dt:.1f}s", flush=True)
-            torch.save({k: v.detach().cpu().clone() for k, v in model.state_dict().items()}, out_dir / "last.pth")
             if va["macro_f1"] > best_f1:
                 best_f1, best_epoch = va["macro_f1"], epoch_num
                 best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}

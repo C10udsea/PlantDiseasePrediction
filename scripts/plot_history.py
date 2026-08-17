@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""把 experiments/<model>/history.csv 画成 loss/F1 曲线。"""
+"""Plot loss / F1 curves from a history.csv."""
 import argparse
 from pathlib import Path
 
@@ -8,15 +8,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-REPO = Path(__file__).resolve().parents[1]
-
 
 def plot(csv_path: Path):
     df = pd.read_csv(csv_path)
     out = csv_path.with_suffix(".png")
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-    if "loss_total" in df.columns:  # distill history schema
-        df = df.rename(columns={"loss_total": "train_loss"})
+    if "loss_total" in df.columns:
         axes[0].plot(df["epoch"], df["loss_ce"], label="ce")
         axes[0].plot(df["epoch"], df["loss_kd"], label="kd")
         axes[0].plot(df["epoch"], df["loss_feat"], label="feat")

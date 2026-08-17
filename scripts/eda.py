@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EDA:38 类分布柱状图 + 每类 1 张样张网格。"""
+"""Generate class distribution and sample grid plots."""
 import sys
 from pathlib import Path
 
@@ -11,13 +11,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from data import EXPECTED_CLASSES, load_manifest
+from data import EXPECTED_CLASSES, load_manifest, resolve_color_dir
 
 m = load_manifest()
-color_dir = Path(m["color_dir"])
+color_dir = resolve_color_dir(m)
 counts = {c: m["per_class"][c] for c in EXPECTED_CLASSES}
 
-# 1) 分布
 fig, ax = plt.subplots(figsize=(16, 6))
 ax.bar(range(len(counts)), list(counts.values()), color="#4C9F70")
 ax.set_xticks(range(len(counts)), list(counts.keys()), rotation=90, fontsize=7)
@@ -30,7 +29,6 @@ fig.savefig(out1, dpi=120)
 plt.close(fig)
 print("saved", out1)
 
-# 2) 样张网格(每类第 1 张)
 fig, axes = plt.subplots(8, 5, figsize=(14, 20))
 axes = axes.ravel()
 for i, c in enumerate(EXPECTED_CLASSES):

@@ -32,7 +32,6 @@ class TestData(unittest.TestCase):
         self.assertEqual(len(set(tr) & set(va)), 0)
         self.assertEqual(len(set(tr) & set(te)), 0)
         self.assertEqual(len(set(va) & set(te)), 0)
-        # 每类在每个集合都至少 1 张
         for c in m["classes"]:
             self.assertGreaterEqual(sum(p.startswith(c + "/") for p in tr), 1)
             self.assertGreaterEqual(sum(p.startswith(c + "/") for p in va), 1)
@@ -49,7 +48,7 @@ class TestModels(unittest.TestCase):
     def test_param_budget(self):
         tiny = TinyCNN()
         p = count_parameters(tiny)
-        self.assertLessEqual(p, 30_000, "TinyCNN must be <=30K to align with resume 26.3K")
+        self.assertLessEqual(p, 30_000)
         self.assertGreaterEqual(p, 20_000)
         self.assertEqual(torch.Size([2, 38]), tiny(torch.randn(2, 3, 224, 224)).shape)
         r18 = build_model("resnet18", pretrained=False)
@@ -81,7 +80,6 @@ class TestKDLoss(unittest.TestCase):
         self.assertGreater(kd.item(), 0)
 
     def test_kl_input_order_contract(self):
-        # 学生在前(log),教师在后(prob);batchmean 下手工计算应一致
         s = torch.randn(3, 38, dtype=torch.float64)
         t = torch.randn(3, 38, dtype=torch.float64)
         T = 4.0
@@ -98,7 +96,7 @@ class TestONNX(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "tiny.onnx"
             torch.onnx.export(model, dummy, str(path), input_names=["input"],
-                              output_names=["logits"], opset_version=17)
+                              output_names=["logits"], opset_version=18, dynamo=False)
             with torch.no_grad():
                 torch_out = model(dummy).numpy()
             sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])

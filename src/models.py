@@ -1,4 +1,4 @@
-"""模型定义:ResNet-18 / MobileNetV2 / ViT-B/16 / TinyCNN(深度可分离,<=30K)。"""
+"""Model definitions: ResNet-18, MobileNetV2, ViT-B/16, TinyCNN."""
 from __future__ import annotations
 
 import torch
@@ -12,11 +12,7 @@ from torchvision.models import (
 
 
 class TinyCNN(nn.Module):
-    """深度可分离 TinyCNN,目标参数量 <=30K(锚定简历 26.3K)。
-
-    stem(3->24, s=2) + 4 个 DW-PW 块(通道 24->48->72->96->88,后 3 块 s=2)
-    + GAP + fc(88->38)。实测约 27.3K 参数(含 BN),在简历 26.3K 的 +20% 容差内。
-    """
+    """Depthwise-separable CNN with ~27.3K parameters."""
 
     def __init__(self, num_classes: int = 38):
         super().__init__()
@@ -75,7 +71,6 @@ def count_parameters(model: nn.Module, trainable_only: bool = True) -> int:
 
 
 def freeze_backbone(model: nn.Module, model_name: str) -> None:
-    """冻结 backbone,只留分类头可训练。"""
     for p in model.parameters():
         p.requires_grad = False
     if model_name in ("resnet18", "resnet"):
