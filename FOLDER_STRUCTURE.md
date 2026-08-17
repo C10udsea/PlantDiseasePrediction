@@ -42,3 +42,4 @@
 - `README.md`:结果汇总与复现说明
 - `PLAN.md`:修订后的执行计划
 - `LICENSE`、`.gitignore`、一键运行脚本 `run_*.sh`
+- **`启动GUI.bat`**:Windows 双击一键启动 GUI

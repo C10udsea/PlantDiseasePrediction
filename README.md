@@ -58,6 +58,15 @@
 
 ---
 
+## 二·补充:Windows 一键启动 GUI
+
+在 `D:\Projects\plant-disease` 下双击 **`启动GUI.bat`**:
+1. 首次运行会自动检测 Python/torch/tkinter,若缺失会自动创建 `.venv` 并安装依赖;
+2. 后续双击会直接启动 Tkinter 窗口;
+3. 如果系统 Python 已装好 torch/tkinter,也会直接使用,不重复安装。
+
+---
+
 ## 三、快速开始(本机实测环境)
 
 ```bash
