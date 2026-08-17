@@ -3,7 +3,8 @@ from pathlib import Path
 import numpy as np, onnxruntime as ort
 from onnxruntime.quantization import QuantType, QuantFormat, quantize_static, CalibrationMethod
 from sklearn.metrics import f1_score
-REPO=Path('/mnt/d/Projects/plant-disease'); DATA=Path.home()/'plantvillage-data'/'quant_mv2'
+REPO = Path(__file__).resolve().parents[1]
+DATA = REPO / "experiments" / "quant_cache" / "quant_mv2"
 FP32=REPO/'experiments/mobilenet_v2/mobilenet_v2_fp32.onnx'
 cal=np.load(DATA/'calib_x.npy',mmap_mode='r'); ev_x=np.load(DATA/'eval_x.npy',mmap_mode='r'); ev_y=np.load(DATA/'eval_y.npy',mmap_mode='r')
 class R:

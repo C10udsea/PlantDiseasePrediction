@@ -2,7 +2,8 @@ import json, shutil, time
 from pathlib import Path
 import numpy as np, onnxruntime as ort
 from sklearn.metrics import f1_score
-REPO=Path('/mnt/d/Projects/plant-disease'); DATA=Path.home()/'plantvillage-data'/'quant_mv2'
+REPO = Path(__file__).resolve().parents[1]
+DATA = REPO / "experiments" / "quant_cache" / "quant_mv2"
 STATIC_SRC=Path('/tmp/mv2_qdq_perch.onnx')
 STATIC_DST=REPO/'experiments/mobilenet_v2/mobilenet_v2_int8_static.onnx'
 DEP=REPO/'experiments/mobilenet_v2/deployment_val.json'

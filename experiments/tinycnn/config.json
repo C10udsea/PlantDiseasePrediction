@@ -13,7 +13,7 @@
   "amp": true,
   "device": "cuda",
   "smoke": false,
-  "manifest": "/mnt/d/Projects/plant-disease/data/split_manifest.json",
+  "manifest": "data/split_manifest.json",
   "init_from": null,
   "train_n": 43444,
   "val_n": 5430,

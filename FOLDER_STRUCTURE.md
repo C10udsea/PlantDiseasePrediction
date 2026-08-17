@@ -1,6 +1,6 @@
 # Folder Structure
 
-All deliverables are under `D:\Projects\plant-disease`.
+All deliverables are under the repository root (`PlantDiseasePrediction`).
 
 ## 1. data\ - Dataset
 | Content | Path |
