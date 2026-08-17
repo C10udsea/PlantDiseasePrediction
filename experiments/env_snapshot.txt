@@ -1,2 +1,0 @@
-NVIDIA GeForce RTX 4060 Laptop GPU, 8188 MiB, 595.71
-torch 2.13.0+cu130 tv 0.28.0+cu130 ort 1.28.0

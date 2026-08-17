@@ -1,6 +1,6 @@
 # 文件夹分类说明
 
-所有训练相关材料已收纳在 `D:\Projects\plant-disease\`,分类如下:
+所有交付材料已收纳在 `D:\Projects\plant-disease\`,分类如下:
 
 ## ① data\ — 数据集与划分
 | 内容 | 路径 |
@@ -26,22 +26,19 @@
 ## ④ scripts\ — 工具脚本
 下载校验 / EDA / 训练曲线 / 结果断言 / 量化校准与调参
 
-## ⑤ experiments\ — 全部训练产物
-- 每个模型一个子目录:`best.pth`(最优权重)、`last.pth`、`config.json`、`history.csv`、`eval_val.json`、`eval_test.json`、`train_summary.json`
+## ⑤ experiments\ — 训练产物
+- 每个模型一个子目录:`best.pth`(最终权重)、`config.json`、`history.csv`、`eval_val.json`、`eval_test.json`、`train_summary.json`
 - 部署:`*_fp32.onnx`、`*_int8_dynamic.onnx`、`*_int8_static.onnx`、`deployment_val.json`
-- 训练曲线 PNG、EDA PNG、完整运行日志、量化校准缓存 `quant_cache\`
-- 环境快照 `env_snapshot.txt`
+- 训练曲线 PNG、EDA PNG
+- 说明:日志、中间 checkpoint、量化缓存等过程文件已删除;需要可重新生成
 
 ## ⑥ tests\ — 自动化测试
 8 个 unittest:数据划分/形状/参数预算/教师冻结/KD loss/ONNX 数值/e2e 冒烟
 
-## ⑦ review\ — 多 Agent 审查材料
-5 份 agent 报告 + 总报告 + 参考 notebook 源码与简历原文(含个人隐私,**已 gitignore,勿公开**)
-
-## ⑧ env\ — 环境配置
+## ⑦ env\ — 环境配置
 `setup.sh`、`requirements.txt`、`requirements.lock`、`env_snapshot.txt`
 
-## ⑨ 根目录
+## ⑧ 根目录
 - `README.md`:结果汇总与复现说明
 - `PLAN.md`:修订后的执行计划
-- `LICENSE`、`.gitignore`、各阶段一键运行脚本 `run_*.sh`
+- `LICENSE`、`.gitignore`、一键运行脚本 `run_*.sh`
