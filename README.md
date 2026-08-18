@@ -1,4 +1,4 @@
-# Plant Disease Detection System
+# PlantDiseasePrediction
 
 面向边缘部署的农作物叶片病害识别系统,支持 38 类叶片健康状态分类。项目包含多模型对比、知识蒸馏、ONNX 静态 INT8 量化与桌面端 GUI,覆盖从训练到部署的完整链路。
 
